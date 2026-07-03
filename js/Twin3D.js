@@ -1,8 +1,7 @@
 class Twin3D {
     constructor(containerId) {
-        this.container = document.getElementById(containerId);
-        if (!this.container) return;
-
+        this.containerId = containerId;
+        this.container = null;
         this.scene = null;
         this.camera = null;
         this.renderer = null;
@@ -21,15 +20,19 @@ class Twin3D {
         this.animationId = null;
         this.isAnimating = false;
         this.animationProgress = 0;
-
-        this.init();
+        this.isInitialized = false;
     }
 
     init() {
+        if (this.isInitialized) return;
+        
+        this.container = document.getElementById(this.containerId);
         if (!this.container) return;
-
+        
         const width = this.container.clientWidth;
         const height = this.container.clientHeight;
+        
+        if (width === 0 || height === 0) return;
 
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color(0x0a0e17);
@@ -44,6 +47,8 @@ class Twin3D {
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         this.renderer.shadowMap.enabled = true;
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        
+        this.container.innerHTML = '';
         this.container.appendChild(this.renderer.domElement);
 
         this.setupLighting();
@@ -54,6 +59,7 @@ class Twin3D {
         
         this.addInteraction();
 
+        this.isInitialized = true;
         this.animate();
     }
 
@@ -360,6 +366,8 @@ class Twin3D {
     }
 
     updateParams(newParams) {
+        if (!this.isInitialized) return;
+        
         this.params = { ...this.params, ...newParams };
         
         if (this.sceneObjects.specimen) {
@@ -390,14 +398,19 @@ class Twin3D {
     }
 
     runSimulation() {
+        if (!this.isInitialized) {
+            this.init();
+            if (!this.isInitialized) return;
+        }
         this.isAnimating = true;
         this.animationProgress = 0;
     }
 
     onWindowResize() {
-        if (!this.container) return;
+        if (!this.isInitialized || !this.container) return;
         const width = this.container.clientWidth;
         const height = this.container.clientHeight;
+        if (width === 0 || height === 0) return;
         this.camera.aspect = width / height;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(width, height);
@@ -437,7 +450,9 @@ class Twin3D {
             }
         }
 
-        this.renderer.render(this.scene, this.camera);
+        if (this.renderer && this.scene && this.camera) {
+            this.renderer.render(this.scene, this.camera);
+        }
     }
 
     destroy() {
@@ -454,6 +469,8 @@ class Twin3D {
         if (this.container && this.renderer && this.renderer.domElement) {
             this.container.removeChild(this.renderer.domElement);
         }
+        
+        this.isInitialized = false;
     }
 }
 

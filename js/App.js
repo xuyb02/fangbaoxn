@@ -89,6 +89,10 @@ class App {
         if (panel) {
             panel.classList.add('active');
         }
+        
+        if (targetTab === 'simulation') {
+            setTimeout(() => this.initTwin3D(), 100);
+        }
     }
 
     updateHopkinsonRatio() {
