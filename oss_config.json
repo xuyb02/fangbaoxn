@@ -1,0 +1,63 @@
+{
+  "bucket_name": "material-analysis",
+  "region": "cn-hangzhou",
+  "domain": "xyb-resume.xyz",
+  "access_key_id": "LTAI5t7RRt2sjtxYCieBeM45",
+  "access_key_secret": "Leh5CDd0L7FpGIWGriOL8KV4Mr5l2A",
+  "website_config": {
+    "index_document": {
+      "suffix": "index.html"
+    },
+    "error_document": {
+      "key": "index.html"
+    },
+    "routing_rules": [
+      {
+        "condition": {
+          "key_prefix_equals": "js/"
+        },
+        "redirect": {
+          "http_redirect_code": "200"
+        }
+      },
+      {
+        "condition": {
+          "key_prefix_equals": "css/"
+        },
+        "redirect": {
+          "http_redirect_code": "200"
+        }
+      }
+    ]
+  },
+  "cors_config": {
+    "allowed_origins": [
+      "*"
+    ],
+    "allowed_methods": [
+      "GET",
+      "HEAD"
+    ],
+    "allowed_headers": [
+      "*"
+    ],
+    "expose_headers": [
+      "ETag"
+    ],
+    "max_age_seconds": 3600
+  },
+  "cache_rules": [
+    {
+      "prefix": "js/",
+      "cache_control": "public, max-age=31536000"
+    },
+    {
+      "prefix": "css/",
+      "cache_control": "public, max-age=31536000"
+    },
+    {
+      "prefix": "index.html",
+      "cache_control": "public, max-age=600"
+    }
+  ]
+}
