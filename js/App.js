@@ -65,13 +65,17 @@ class App {
     }
 
     switchTab(e) {
-        const targetTab = e.target.dataset.tab;
+        const btn = e.currentTarget;
+        const targetTab = btn.dataset.tab;
         
         document.querySelectorAll('.tab-btn').forEach(tab => tab.classList.remove('active'));
         document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
         
-        e.target.classList.add('active');
-        document.getElementById(`${targetTab}-panel`).classList.add('active');
+        btn.classList.add('active');
+        const panel = document.getElementById(`${targetTab}-panel`);
+        if (panel) {
+            panel.classList.add('active');
+        }
     }
 
     updateHopkinsonRatio() {

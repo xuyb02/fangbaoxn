@@ -1,0 +1,149 @@
+{
+  "summary": {
+    "total": 23,
+    "passed": 22,
+    "failed": 0,
+    "warnings": 1,
+    "overall": "success"
+  },
+  "tests": [
+    {
+      "name": "HTTP访问",
+      "status": "pass",
+      "message": "HTTP 200, 内容长度: 31674 字节",
+      "details": null
+    },
+    {
+      "name": "资源加载: css/style.css",
+      "status": "pass",
+      "message": "加载成功",
+      "details": null
+    },
+    {
+      "name": "资源加载: js/App.js",
+      "status": "pass",
+      "message": "加载成功",
+      "details": null
+    },
+    {
+      "name": "资源加载: js/SignalProcessor.js",
+      "status": "pass",
+      "message": "加载成功",
+      "details": null
+    },
+    {
+      "name": "资源加载: js/MaterialCalculator.js",
+      "status": "pass",
+      "message": "加载成功",
+      "details": null
+    },
+    {
+      "name": "资源加载: js/BayesianOptimizer.js",
+      "status": "pass",
+      "message": "加载成功",
+      "details": null
+    },
+    {
+      "name": "资源加载: js/FileParser.js",
+      "status": "pass",
+      "message": "加载成功",
+      "details": null
+    },
+    {
+      "name": "资源加载汇总",
+      "status": "pass",
+      "message": "6/6 资源加载成功",
+      "details": null
+    },
+    {
+      "name": "HTML结构: 页面标题",
+      "status": "pass",
+      "message": "存在",
+      "details": null
+    },
+    {
+      "name": "HTML结构: 主容器",
+      "status": "pass",
+      "message": "存在",
+      "details": null
+    },
+    {
+      "name": "HTML结构: 头部",
+      "status": "pass",
+      "message": "存在",
+      "details": null
+    },
+    {
+      "name": "HTML结构: 导航",
+      "status": "pass",
+      "message": "存在",
+      "details": null
+    },
+    {
+      "name": "HTML结构: 主内容",
+      "status": "pass",
+      "message": "存在",
+      "details": null
+    },
+    {
+      "name": "HTML结构: 霍普金森面板",
+      "status": "pass",
+      "message": "存在",
+      "details": null
+    },
+    {
+      "name": "HTML结构: 优化面板",
+      "status": "pass",
+      "message": "存在",
+      "details": null
+    },
+    {
+      "name": "HTML结构: 形貌面板",
+      "status": "pass",
+      "message": "存在",
+      "details": null
+    },
+    {
+      "name": "HTML结构: 模拟面板",
+      "status": "pass",
+      "message": "存在",
+      "details": null
+    },
+    {
+      "name": "HTML结构: 批量面板",
+      "status": "pass",
+      "message": "存在",
+      "details": null
+    },
+    {
+      "name": "HTML结构: 报告面板",
+      "status": "pass",
+      "message": "存在",
+      "details": null
+    },
+    {
+      "name": "HTML结构: Chart.js",
+      "status": "pass",
+      "message": "存在",
+      "details": null
+    },
+    {
+      "name": "HTML结构: App.js",
+      "status": "pass",
+      "message": "存在",
+      "details": null
+    },
+    {
+      "name": "HTML结构汇总",
+      "status": "pass",
+      "message": "所有关键元素存在",
+      "details": null
+    },
+    {
+      "name": "CORS配置",
+      "status": "warning",
+      "message": "HTTP Error 501: Unsupported method ('OPTIONS')",
+      "details": null
+    }
+  ]
+}
