@@ -6,10 +6,6 @@
     <title>材料性能分析系统 | 有机-无机混合材料</title>
     <meta name="description" content="有机-无机混合材料吸能分析系统，基于霍普金森压杆实验的材料性能分析平台">
     <link rel="stylesheet" href="./css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
     <div class="app-container">
@@ -34,106 +30,110 @@
         </header>
 
         <nav class="tab-navigation">
-            <button class="tab-btn active" data-tab="hopkinson">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-                </svg>
-                <span>霍普金森分析</span>
-            </button>
-            <button class="tab-btn" data-tab="optimize">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-4c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h4c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
-                </svg>
-                <span>配比优化</span>
-            </button>
-            <button class="tab-btn" data-tab="morphology">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
-                </svg>
-                <span>形貌分析</span>
-            </button>
-            <button class="tab-btn" data-tab="simulation">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
-                </svg>
-                <span>数字孪生</span>
-            </button>
-            <button class="tab-btn" data-tab="batch">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M20 2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 18H4V4h16v16zM6 10h5v5H6zm7 0h5v5h-5z"/>
-                </svg>
-                <span>批量分析</span>
-            </button>
-            <button class="tab-btn" data-tab="report">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
-                </svg>
-                <span>生成报告</span>
-            </button>
+            <div class="tab-nav-inner">
+                <button class="tab-btn active" data-tab="hopkinson">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                    </svg>
+                    <span>霍普金森分析</span>
+                </button>
+                <button class="tab-btn" data-tab="optimize">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-4c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h4c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+                    </svg>
+                    <span>配比优化</span>
+                </button>
+                <button class="tab-btn" data-tab="morphology">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                    </svg>
+                    <span>形貌分析</span>
+                </button>
+                <button class="tab-btn" data-tab="simulation">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                    </svg>
+                    <span>数字孪生</span>
+                </button>
+                <button class="tab-btn" data-tab="batch">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 18H4V4h16v16zM6 10h5v5H6zm7 0h5v5h-5z"/>
+                    </svg>
+                    <span>批量分析</span>
+                </button>
+                <button class="tab-btn" data-tab="report">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+                    </svg>
+                    <span>生成报告</span>
+                </button>
+            </div>
         </nav>
 
         <main class="main-content">
             <section class="tab-panel active" id="hopkinson-panel">
                 <div class="panel-layout">
                     <div class="panel-sidebar">
-                        <div class="section-title">
-                            <h2>霍普金森压杆分析</h2>
-                            <p>气凝胶-混凝土复合材料动态力学性能分析</p>
-                        </div>
+                        <div class="form-card">
+                            <div class="section-title">
+                                <h2>霍普金森压杆分析</h2>
+                                <p>气凝胶-混凝土复合材料动态力学性能分析</p>
+                            </div>
 
-                        <div class="form-group">
-                            <label>材料配比</label>
-                            <div class="ratio-inputs">
-                                <div class="ratio-field">
-                                    <input type="number" id="hopkinson-aerogel" value="40" min="0" max="100">
-                                    <span class="field-label">气凝胶 (%)</span>
+                            <div class="form-group">
+                                <label>材料配比</label>
+                                <div class="ratio-inputs">
+                                    <div class="ratio-field">
+                                        <input type="number" id="hopkinson-aerogel" value="40" min="0" max="100">
+                                        <span class="field-label">气凝胶 (%)</span>
+                                    </div>
+                                    <div class="ratio-field">
+                                        <input type="number" id="hopkinson-concrete" value="60" min="0" max="100">
+                                        <span class="field-label">混凝土 (%)</span>
+                                    </div>
                                 </div>
-                                <div class="ratio-field">
-                                    <input type="number" id="hopkinson-concrete" value="60" min="0" max="100">
-                                    <span class="field-label">混凝土 (%)</span>
+                                <div class="ratio-summary" id="hopkinson-ratio-summary">
+                                    总配比: <span class="ratio-value" id="hopkinson-total-ratio">100%</span>
                                 </div>
                             </div>
-                            <div class="ratio-summary" id="hopkinson-ratio-summary">
-                                总配比: <span class="ratio-value" id="hopkinson-total-ratio">100%</span>
+
+                            <div class="form-group">
+                                <label>孔隙率 (%)</label>
+                                <input type="number" id="hopkinson-porosity" value="40" min="0" max="90">
                             </div>
-                        </div>
 
-                        <div class="form-group">
-                            <label>孔隙率 (%)</label>
-                            <input type="number" id="hopkinson-porosity" value="40" min="0" max="90">
-                        </div>
+                            <div class="form-group">
+                                <label>应变率 (s⁻¹)</label>
+                                <input type="number" id="hopkinson-strain-rate" value="1000" min="100" max="10000">
+                            </div>
 
-                        <div class="form-group">
-                            <label>应变率 (s⁻¹)</label>
-                            <input type="number" id="hopkinson-strain-rate" value="1000" min="100" max="10000">
-                        </div>
+                            <div class="form-group">
+                                <label>冲击压强 (MPa)</label>
+                                <input type="number" id="hopkinson-pressure" value="50" min="10" max="200">
+                            </div>
 
-                        <div class="form-group">
-                            <label>冲击压强 (MPa)</label>
-                            <input type="number" id="hopkinson-pressure" value="50" min="10" max="200">
-                        </div>
-
-                        <div class="form-group">
-                            <label>实验数据文件</label>
-                            <div class="file-upload" id="hopkinson-file-upload">
-                                <input type="file" id="hopkinson-file-input" accept=".csv,.txt,.xlsx,.xls,.pdf">
-                                <div class="upload-content">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/>
-                                    </svg>
-                                    <span>点击或拖拽上传数据文件</span>
+                            <div class="form-group">
+                                <label>实验数据文件</label>
+                                <div class="file-upload" id="hopkinson-file-upload">
+                                    <input type="file" id="hopkinson-file-input" accept=".csv,.txt,.xlsx,.xls,.pdf">
+                                    <div class="upload-content">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/>
+                                        </svg>
+                                        <span>点击或拖拽上传数据文件</span>
+                                    </div>
+                                    <div class="file-info" id="hopkinson-file-info"></div>
                                 </div>
-                                <div class="file-info" id="hopkinson-file-info"></div>
+                                <small class="input-hint">支持: CSV, TXT, Excel, PDF</small>
                             </div>
-                            <small class="input-hint">支持: CSV, TXT, Excel, PDF</small>
-                        </div>
 
-                        <button id="calculate-hopkinson-btn" class="primary-button">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-2h2v2zm0-4H7v-2h2v2zm0-4H7V7h2v2zm4 8h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2V7h2v2zm4 8h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2V7h2v2z"/>
-                            </svg>
-                            计算霍普金森响应
-                        </button>
+                            <button id="calculate-hopkinson-btn" class="primary-button">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-2h2v2zm0-4H7v-2h2v2zm0-4H7V7h2v2zm4 8h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2V7h2v2zm4 8h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2V7h2v2z"/>
+                                </svg>
+                                计算霍普金森响应
+                            </button>
+                        </div>
                     </div>
 
                     <div class="panel-main">
@@ -219,37 +219,39 @@
             <section class="tab-panel" id="optimize-panel">
                 <div class="panel-layout">
                     <div class="panel-sidebar">
-                        <div class="section-title">
-                            <h2>配比优化</h2>
-                            <p>基于贝叶斯优化的材料配比智能设计</p>
-                        </div>
+                        <div class="form-card">
+                            <div class="section-title">
+                                <h2>配比优化</h2>
+                                <p>基于贝叶斯优化的材料配比智能设计</p>
+                            </div>
 
-                        <div class="form-group">
-                            <label>目标能量吸收 (J/cm³)</label>
-                            <input type="number" id="opt-target-ea" value="50" min="10" max="100">
-                        </div>
+                            <div class="form-group">
+                                <label>目标能量吸收 (J/cm³)</label>
+                                <input type="number" id="opt-target-ea" value="50" min="10" max="100">
+                            </div>
 
-                        <div class="form-group">
-                            <label>目标密度 (kg/m³)</label>
-                            <input type="number" id="opt-target-density" value="500" min="100" max="2000">
-                        </div>
+                            <div class="form-group">
+                                <label>目标密度 (kg/m³)</label>
+                                <input type="number" id="opt-target-density" value="500" min="100" max="2000">
+                            </div>
 
-                        <div class="form-group">
-                            <label>目标模量 (MPa)</label>
-                            <input type="number" id="opt-target-modulus" value="5000" min="1000" max="30000">
-                        </div>
+                            <div class="form-group">
+                                <label>目标模量 (MPa)</label>
+                                <input type="number" id="opt-target-modulus" value="5000" min="1000" max="30000">
+                            </div>
 
-                        <div class="form-group">
-                            <label>优化迭代次数</label>
-                            <input type="number" id="opt-iterations" value="25" min="10" max="50">
-                        </div>
+                            <div class="form-group">
+                                <label>优化迭代次数</label>
+                                <input type="number" id="opt-iterations" value="25" min="10" max="50">
+                            </div>
 
-                        <button id="run-optimize-btn" class="primary-button">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-4c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h4c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
-                            </svg>
-                            执行贝叶斯优化
-                        </button>
+                            <button id="run-optimize-btn" class="primary-button">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-4c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h4c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+                                </svg>
+                                执行贝叶斯优化
+                            </button>
+                        </div>
                     </div>
 
                     <div class="panel-main">
@@ -301,53 +303,55 @@
             <section class="tab-panel" id="morphology-panel">
                 <div class="panel-layout">
                     <div class="panel-sidebar">
-                        <div class="section-title">
-                            <h2>形貌分析</h2>
-                            <p>基于AI的SEM图像定量分析</p>
-                        </div>
-
-                        <div class="form-group">
-                            <label>材料配比</label>
-                            <div class="ratio-inputs">
-                                <div class="ratio-field">
-                                    <input type="number" id="morph-aerogel" value="40" min="0" max="100">
-                                    <span class="field-label">气凝胶 (%)</span>
-                                </div>
-                                <div class="ratio-field">
-                                    <input type="number" id="morph-concrete" value="60" min="0" max="100">
-                                    <span class="field-label">混凝土 (%)</span>
-                                </div>
+                        <div class="form-card">
+                            <div class="section-title">
+                                <h2>形貌分析</h2>
+                                <p>基于AI的SEM图像定量分析</p>
                             </div>
-                        </div>
 
-                        <div class="form-group">
-                            <label>形貌照片</label>
-                            <div class="file-upload" id="morph-file-upload">
-                                <input type="file" id="morph-file-input" accept="image/*">
-                                <div class="upload-content">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
-                                    </svg>
-                                    <span>点击或拖拽上传形貌照片</span>
+                            <div class="form-group">
+                                <label>材料配比</label>
+                                <div class="ratio-inputs">
+                                    <div class="ratio-field">
+                                        <input type="number" id="morph-aerogel" value="40" min="0" max="100">
+                                        <span class="field-label">气凝胶 (%)</span>
+                                    </div>
+                                    <div class="ratio-field">
+                                        <input type="number" id="morph-concrete" value="60" min="0" max="100">
+                                        <span class="field-label">混凝土 (%)</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="image-editor" id="morph-image-editor" style="display: none;">
-                            <img id="morph-image-preview" src="" alt="预览">
-                            <div class="editor-toolbar">
-                                <button class="tool-btn" id="morph-crop-btn">裁剪</button>
-                                <button class="tool-btn" id="morph-rotate-btn">旋转</button>
-                                <button class="tool-btn" id="morph-annotate-btn">标注</button>
+                            <div class="form-group">
+                                <label>形貌照片</label>
+                                <div class="file-upload" id="morph-file-upload">
+                                    <input type="file" id="morph-file-input" accept="image/*">
+                                    <div class="upload-content">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                                        </svg>
+                                        <span>点击或拖拽上传形貌照片</span>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
 
-                        <button id="analyze-morph-btn" class="primary-button">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
-                            </svg>
-                            分析形貌特征
-                        </button>
+                            <div class="image-editor" id="morph-image-editor" style="display: none;">
+                                <img id="morph-image-preview" src="" alt="预览">
+                                <div class="editor-toolbar">
+                                    <button class="tool-btn" id="morph-crop-btn">裁剪</button>
+                                    <button class="tool-btn" id="morph-rotate-btn">旋转</button>
+                                    <button class="tool-btn" id="morph-annotate-btn">标注</button>
+                                </div>
+                            </div>
+
+                            <button id="analyze-morph-btn" class="primary-button">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                                </svg>
+                                分析形貌特征
+                            </button>
+                        </div>
                     </div>
 
                     <div class="panel-main">
@@ -390,49 +394,51 @@
             <section class="tab-panel" id="simulation-panel">
                 <div class="panel-layout">
                     <div class="panel-sidebar">
-                        <div class="section-title">
-                            <h2>数字孪生</h2>
-                            <p>霍普金森压杆实验三维模拟</p>
-                        </div>
-
-                        <div class="form-group">
-                            <label>气凝胶比例 (%)</label>
-                            <div class="slider-control">
-                                <input type="range" id="sim-aerogel" min="0" max="100" value="40">
-                                <span id="sim-aerogel-val">40%</span>
+                        <div class="form-card">
+                            <div class="section-title">
+                                <h2>数字孪生</h2>
+                                <p>霍普金森压杆实验三维模拟</p>
                             </div>
-                        </div>
 
-                        <div class="form-group">
-                            <label>混凝土比例 (%)</label>
-                            <div class="slider-control">
-                                <input type="range" id="sim-concrete" min="0" max="100" value="60">
-                                <span id="sim-concrete-val">60%</span>
+                            <div class="form-group">
+                                <label>气凝胶比例 (%)</label>
+                                <div class="slider-control">
+                                    <input type="range" id="sim-aerogel" min="0" max="100" value="40">
+                                    <span id="sim-aerogel-val">40%</span>
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="form-group">
-                            <label>孔隙率 (%)</label>
-                            <div class="slider-control">
-                                <input type="range" id="sim-porosity" min="0" max="90" value="40">
-                                <span id="sim-porosity-val">40%</span>
+                            <div class="form-group">
+                                <label>混凝土比例 (%)</label>
+                                <div class="slider-control">
+                                    <input type="range" id="sim-concrete" min="0" max="100" value="60">
+                                    <span id="sim-concrete-val">60%</span>
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="form-group">
-                            <label>应变率 (s⁻¹)</label>
-                            <div class="slider-control">
-                                <input type="range" id="sim-strain-rate" min="100" max="10000" value="1000">
-                                <span id="sim-strain-rate-val">1000</span>
+                            <div class="form-group">
+                                <label>孔隙率 (%)</label>
+                                <div class="slider-control">
+                                    <input type="range" id="sim-porosity" min="0" max="90" value="40">
+                                    <span id="sim-porosity-val">40%</span>
+                                </div>
                             </div>
-                        </div>
 
-                        <button id="run-simulation-btn" class="primary-button">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M8 5v14l11-7z"/>
-                            </svg>
-                            运行模拟
-                        </button>
+                            <div class="form-group">
+                                <label>应变率 (s⁻¹)</label>
+                                <div class="slider-control">
+                                    <input type="range" id="sim-strain-rate" min="100" max="10000" value="1000">
+                                    <span id="sim-strain-rate-val">1000</span>
+                                </div>
+                            </div>
+
+                            <button id="run-simulation-btn" class="primary-button">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                                运行模拟
+                            </button>
+                        </div>
                     </div>
 
                     <div class="panel-main">
@@ -462,40 +468,42 @@
             <section class="tab-panel" id="batch-panel">
                 <div class="panel-layout">
                     <div class="panel-sidebar">
-                        <div class="section-title">
-                            <h2>批量分析</h2>
-                            <p>多参数组合批量计算</p>
-                        </div>
-
-                        <div class="form-group">
-                            <label>气凝胶比例范围</label>
-                            <div class="range-input">
-                                <input type="number" id="batch-aerogel-min" value="20" min="0" max="100">
-                                <span>~</span>
-                                <input type="number" id="batch-aerogel-max" value="80" min="0" max="100">
+                        <div class="form-card">
+                            <div class="section-title">
+                                <h2>批量分析</h2>
+                                <p>多参数组合批量计算</p>
                             </div>
-                        </div>
 
-                        <div class="form-group">
-                            <label>孔隙率范围</label>
-                            <div class="range-input">
-                                <input type="number" id="batch-porosity-min" value="20" min="0" max="90">
-                                <span>~</span>
-                                <input type="number" id="batch-porosity-max" value="70" min="0" max="90">
+                            <div class="form-group">
+                                <label>气凝胶比例范围</label>
+                                <div class="range-input">
+                                    <input type="number" id="batch-aerogel-min" value="20" min="0" max="100">
+                                    <span>~</span>
+                                    <input type="number" id="batch-aerogel-max" value="80" min="0" max="100">
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="form-group">
-                            <label>采样点数</label>
-                            <input type="number" id="batch-samples" value="15" min="5" max="30">
-                        </div>
+                            <div class="form-group">
+                                <label>孔隙率范围</label>
+                                <div class="range-input">
+                                    <input type="number" id="batch-porosity-min" value="20" min="0" max="90">
+                                    <span>~</span>
+                                    <input type="number" id="batch-porosity-max" value="70" min="0" max="90">
+                                </div>
+                            </div>
 
-                        <button id="run-batch-btn" class="primary-button">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M20 2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 18H4V4h16v16zM6 10h5v5H6zm7 0h5v5h-5z"/>
-                            </svg>
-                            执行批量分析
-                        </button>
+                            <div class="form-group">
+                                <label>采样点数</label>
+                                <input type="number" id="batch-samples" value="15" min="5" max="30">
+                            </div>
+
+                            <button id="run-batch-btn" class="primary-button">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 18H4V4h16v16zM6 10h5v5H6zm7 0h5v5h-5z"/>
+                                </svg>
+                                执行批量分析
+                            </button>
+                        </div>
                     </div>
 
                     <div class="panel-main">
@@ -518,22 +526,24 @@
 
             <section class="tab-panel" id="report-panel">
                 <div class="panel-full">
-                    <div class="section-title">
-                        <h2>生成分析报告</h2>
-                        <p>多模块协同分析报告生成</p>
-                    </div>
+                    <div class="form-card">
+                        <div class="section-title">
+                            <h2>生成分析报告</h2>
+                            <p>多模块协同分析报告生成</p>
+                        </div>
 
-                    <div class="report-intro">
-                        <p>系统将根据您的分析结果自动生成完整报告</p>
-                        <p>请先在其他标签页完成分析，然后点击下方按钮生成报告</p>
-                    </div>
+                        <div class="report-intro">
+                            <p>系统将根据您的分析结果自动生成完整报告</p>
+                            <p>请先在其他标签页完成分析，然后点击下方按钮生成报告</p>
+                        </div>
 
-                    <button id="generate-report-btn" class="primary-button">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6z"/>
-                        </svg>
-                        生成报告
-                    </button>
+                        <button id="generate-report-btn" class="primary-button">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6z"/>
+                            </svg>
+                            生成报告
+                        </button>
+                    </div>
 
                     <div id="report-content" class="report-container" style="display: none;">
                         <div id="report-body"></div>
@@ -547,6 +557,9 @@
         </footer>
     </div>
 
+    <script src="./libs/chart.umd.min.js"></script>
+    <script src="./libs/marked.min.js"></script>
+    <script src="./libs/xlsx.full.min.js"></script>
     <script src="./js/SignalProcessor.js"></script>
     <script src="./js/MaterialCalculator.js"></script>
     <script src="./js/BayesianOptimizer.js"></script>
