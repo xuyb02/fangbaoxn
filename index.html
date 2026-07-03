@@ -443,6 +443,37 @@
 
                     <div class="panel-main">
                         <div id="simulation-results" class="results-container">
+                            <div class="twin-3d-container" id="twin-3d-container">
+                                <div class="twin-3d-canvas"></div>
+                                <div class="twin-3d-controls">
+                                    <button class="twin-control-btn" id="twin-rotate-btn" title="旋转视角">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M12 20V10M18 14l-6-6-6 6"/>
+                                        </svg>
+                                    </button>
+                                    <button class="twin-control-btn" id="twin-reset-btn" title="重置视角">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                                            <path d="M3 3v5h5"/>
+                                        </svg>
+                                    </button>
+                                    <button class="twin-control-btn" id="twin-fullscreen-btn" title="全屏">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div class="twin-3d-overlay">
+                                    <div class="twin-param-display">
+                                        <span class="param-label">气凝胶:</span>
+                                        <span class="param-value" id="twin-aerogel-val">40%</span>
+                                    </div>
+                                    <div class="twin-param-display">
+                                        <span class="param-label">孔隙率:</span>
+                                        <span class="param-value" id="twin-porosity-val">40%</span>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="simulation-info">
                                 <div class="info-item">
                                     <span class="info-label">能量吸收</span>
@@ -564,6 +595,7 @@
     <script src="./js/MaterialCalculator.js"></script>
     <script src="./js/BayesianOptimizer.js"></script>
     <script src="./js/FileParser.js"></script>
+    <script src="./js/Twin3D.js"></script>
     <script src="./js/App.js"></script>
 </body>
 </html>

@@ -12,6 +12,9 @@ class App {
         this.simulationChart = null;
         this.batchChart = null;
         
+        this.twin3D = null;
+        this.threeLoaded = false;
+        
         this.currentApiKey = localStorage.getItem("dashscope_api_key") || "";
         
         this.init();
@@ -20,6 +23,16 @@ class App {
     init() {
         this.setupEventListeners();
         this.initSliderControls();
+        this.initTwin3D();
+    }
+
+    initTwin3D() {
+        loadThreeJS(() => {
+            if (typeof THREE !== 'undefined') {
+                this.threeLoaded = true;
+                this.twin3D = new Twin3D('twin-3d-container');
+            }
+        });
     }
 
     setupEventListeners() {
@@ -111,9 +124,30 @@ class App {
             if (slider && val) {
                 slider.addEventListener('input', (e) => {
                     val.textContent = e.target.value + suffix;
+                    this.updateTwinParams();
                 });
                 val.textContent = slider.value + suffix;
             }
+        });
+    }
+
+    updateTwinParams() {
+        if (!this.twin3D) return;
+        
+        const aerogel = parseFloat(document.getElementById('sim-aerogel').value) / 100;
+        const concrete = parseFloat(document.getElementById('sim-concrete').value) / 100;
+        const porosity = parseFloat(document.getElementById('sim-porosity').value) / 100;
+        const strainRate = parseFloat(document.getElementById('sim-strain-rate').value);
+        
+        document.getElementById('twin-aerogel-val').textContent = `${(aerogel * 100).toFixed(0)}%`;
+        document.getElementById('twin-porosity-val').textContent = `${(porosity * 100).toFixed(0)}%`;
+        
+        this.twin3D.updateParams({
+            aerogelRatio: aerogel,
+            concreteRatio: concrete,
+            porosity: porosity,
+            strainRate: strainRate,
+            pressure: 50
         });
     }
 
@@ -423,6 +457,17 @@ class App {
         document.getElementById('sim-modulus').textContent = result.modulus;
         
         this.updateSimulationChart(result);
+        
+        if (this.twin3D) {
+            this.twin3D.updateParams({
+                aerogelRatio: aerogel,
+                concreteRatio: concrete,
+                porosity: porosity,
+                strainRate: strainRate,
+                pressure: 50
+            });
+            this.twin3D.runSimulation();
+        }
         
         this.showToast("模拟完成");
     }
