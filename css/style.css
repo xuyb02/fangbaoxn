@@ -1335,6 +1335,27 @@ body {
     font-family: var(--font-mono);
 }
 
+.twin-magnifier {
+    box-shadow: 0 0 30px rgba(99, 102, 241, 0.4);
+    background: var(--bg-card);
+    backdrop-filter: blur(10px);
+}
+
+.twin-magnifier canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.magnifier-close-btn:hover {
+    background: rgba(239, 68, 68, 0.7) !important;
+    transform: scale(1.1);
+}
+
+.magnifier-close-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
 .report-intro {
     padding: 2rem;
     background: var(--bg-card);

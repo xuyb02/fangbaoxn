@@ -22,6 +22,10 @@ class Twin3D {
         this.animationProgress = 0;
         this.isInitialized = false;
         
+        this.initialPositions = {};
+        this.initialScales = {};
+        this.waveParticles = [];
+        
         this.debugInfo = {
             initAttempts: 0,
             lastError: null,
@@ -389,6 +393,8 @@ class Twin3D {
         impactorGroup.position.set(-7.5, 1.5, 0);
         this.meshGroup.add(impactorGroup);
         this.sceneObjects.impactor = impactor;
+        this.sceneObjects.impactorGroup = impactorGroup;
+        this.initialPositions.impactor = new THREE.Vector3(-7.5, 1.5, 0);
 
         const incidentRodGroup = new THREE.Group();
 
@@ -499,6 +505,8 @@ class Twin3D {
         specimenGroup.position.set(0, 1.5, 0);
         this.meshGroup.add(specimenGroup);
         this.sceneObjects.specimen = specimen;
+        this.sceneObjects.specimenGroup = specimenGroup;
+        this.initialScales.specimen = new THREE.Vector3(1, 1, 1);
 
         const transmittedRodGroup = new THREE.Group();
 
@@ -1528,56 +1536,238 @@ class Twin3D {
         this.meshGroup.add(particles);
         this.sceneObjects.strainParticles = particles;
         this.sceneObjects.strainVelocities = velocities;
+        
+        this.createWaveEffect();
+    }
+
+    createWaveEffect() {
+        const waveMaterial = new THREE.MeshStandardMaterial({
+            color: 0xff6b6b,
+            metalness: 0.8,
+            roughness: 0.2,
+            transparent: true,
+            opacity: 0.7
+        });
+
+        for (let i = 0; i < 20; i++) {
+            const waveRing = new THREE.Mesh(
+                new THREE.RingGeometry(0.15, 0.25, 32),
+                waveMaterial.clone()
+            );
+            waveRing.visible = false;
+            waveRing.position.set(-5, 1.5, 0);
+            waveRing.rotation.x = -Math.PI / 2;
+            this.meshGroup.add(waveRing);
+            this.waveParticles.push({
+                mesh: waveRing,
+                active: false,
+                position: -5,
+                speed: 0,
+                radius: 0.15,
+                opacity: 0.7
+            });
+        }
     }
 
     addInteraction() {
-        let isDragging = false;
-        let previousMousePosition = { x: 0, y: 0 };
-        let targetRotationX = 0;
-        let targetRotationY = 0;
+        this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+        this.controls.enableDamping = true;
+        this.controls.dampingFactor = 0.05;
+        this.controls.rotateSpeed = 0.5;
+        this.controls.zoomSpeed = 0.8;
+        this.controls.panSpeed = 0.5;
+        this.controls.minPolarAngle = 0.1;
+        this.controls.maxPolarAngle = Math.PI / 2 - 0.1;
+        this.controls.minDistance = 5;
+        this.controls.maxDistance = 30;
+        this.controls.target.set(0, 1, 0);
 
-        const container = this.container;
-
-        container.addEventListener('mousedown', (e) => {
-            isDragging = true;
-            previousMousePosition = { x: e.clientX, y: e.clientY };
+        document.getElementById('twin-reset-btn').addEventListener('click', () => {
+            this.resetView();
         });
 
-        container.addEventListener('mousemove', (e) => {
-            if (!isDragging) return;
-            
-            const deltaX = e.clientX - previousMousePosition.x;
-            const deltaY = e.clientY - previousMousePosition.y;
-            
-            targetRotationY += deltaX * 0.005;
-            targetRotationX += deltaY * 0.005;
-            targetRotationX = Math.max(-Math.PI / 3, Math.min(Math.PI / 3, targetRotationX));
-            
-            previousMousePosition = { x: e.clientX, y: e.clientY };
+        document.getElementById('twin-fullscreen-btn').addEventListener('click', () => {
+            this.toggleFullscreen();
         });
 
-        container.addEventListener('mouseup', () => {
-            isDragging = false;
+        this.createMagnifier();
+    }
+
+    resetView() {
+        this.camera.position.set(12, 6, 10);
+        this.camera.lookAt(0, 1, 0);
+        
+        if (this.controls) {
+            this.controls.reset();
+            this.controls.target.set(0, 1, 0);
+        }
+
+        if (this.meshGroup) {
+            this.meshGroup.rotation.set(0, 0, 0);
+        }
+
+        if (this.sceneObjects.specimen) {
+            const initialScale = 1 - this.params.porosity * 0.3;
+            this.sceneObjects.specimen.scale.set(initialScale, initialScale, initialScale);
+        }
+
+        if (this.sceneObjects.impactorGroup && this.initialPositions.impactor) {
+            this.sceneObjects.impactorGroup.position.copy(this.initialPositions.impactor);
+        }
+
+        this.waveParticles.forEach(wave => {
+            wave.active = false;
+            wave.mesh.visible = false;
+            wave.position = -5;
+            wave.radius = 0.15;
+            wave.opacity = 0.7;
+            wave.mesh.scale.set(1, 1, 1);
+            wave.mesh.material.opacity = 0.7;
         });
 
-        container.addEventListener('mouseleave', () => {
-            isDragging = false;
-        });
-
-        let scale = 1;
-        container.addEventListener('wheel', (e) => {
-            e.preventDefault();
-            scale += e.deltaY * -0.001;
-            scale = Math.max(0.5, Math.min(2, scale));
-            this.camera.position.set(8 * scale, 5 * scale, 8 * scale);
-        });
-
-        this.updateRotation = () => {
-            if (this.meshGroup) {
-                this.meshGroup.rotation.y += (targetRotationY - this.meshGroup.rotation.y) * 0.05;
-                this.meshGroup.rotation.x += (targetRotationX - this.meshGroup.rotation.x) * 0.05;
+        if (this.sceneObjects.strainParticles) {
+            this.sceneObjects.strainParticles.visible = false;
+            const positions = this.sceneObjects.strainParticles.geometry.attributes.position.array;
+            for (let i = 0; i < positions.length / 3; i++) {
+                positions[i * 3] = (Math.random() - 0.5) * 2;
+                positions[i * 3 + 1] = 1.5 + (Math.random() - 0.5) * 0.5;
+                positions[i * 3 + 2] = (Math.random() - 0.5) * 1;
             }
-        };
+            this.sceneObjects.strainParticles.geometry.attributes.position.needsUpdate = true;
+        }
+
+        if (this.sceneObjects.pressureNeedle) {
+            this.sceneObjects.pressureNeedle.rotation.z = -Math.PI / 4;
+        }
+
+        this.isAnimating = false;
+        this.animationProgress = 0;
+
+        if (this.magnifier) {
+            this.magnifier.style.display = 'none';
+        }
+    }
+
+    toggleFullscreen() {
+        const container = this.container;
+        if (!document.fullscreenElement) {
+            container.requestFullscreen().catch(err => {
+                console.error('Error attempting to enable full-screen mode:', err);
+            });
+        } else {
+            document.exitFullscreen();
+        }
+    }
+
+    createMagnifier() {
+        this.magnifier = document.createElement('div');
+        this.magnifier.className = 'twin-magnifier';
+        this.magnifier.style.position = 'absolute';
+        this.magnifier.style.width = '220px';
+        this.magnifier.style.height = '220px';
+        this.magnifier.style.border = '2px solid var(--primary-color)';
+        this.magnifier.style.borderRadius = '12px';
+        this.magnifier.style.overflow = 'hidden';
+        this.magnifier.style.display = 'none';
+        this.magnifier.style.zIndex = '20';
+        this.magnifier.style.bottom = '20px';
+        this.magnifier.style.right = '20px';
+
+        this.magnifierCloseBtn = document.createElement('button');
+        this.magnifierCloseBtn.className = 'magnifier-close-btn';
+        this.magnifierCloseBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+        this.magnifierCloseBtn.style.position = 'absolute';
+        this.magnifierCloseBtn.style.top = '4px';
+        this.magnifierCloseBtn.style.right = '4px';
+        this.magnifierCloseBtn.style.width = '24px';
+        this.magnifierCloseBtn.style.height = '24px';
+        this.magnifierCloseBtn.style.background = 'rgba(0, 0, 0, 0.6)';
+        this.magnifierCloseBtn.style.border = 'none';
+        this.magnifierCloseBtn.style.borderRadius = '4px';
+        this.magnifierCloseBtn.style.color = 'white';
+        this.magnifierCloseBtn.style.cursor = 'pointer';
+        this.magnifierCloseBtn.style.display = 'flex';
+        this.magnifierCloseBtn.style.alignItems = 'center';
+        this.magnifierCloseBtn.style.justifyContent = 'center';
+        this.magnifierCloseBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.magnifier.style.display = 'none';
+        });
+
+        this.magnifier.appendChild(this.magnifierCloseBtn);
+
+        this.magnifierRenderer = new THREE.WebGLRenderer({ antialias: true });
+        this.magnifierRenderer.setSize(220, 220);
+        this.magnifierRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        
+        const magnifierCanvasContainer = document.createElement('div');
+        magnifierCanvasContainer.style.width = '100%';
+        magnifierCanvasContainer.style.height = '100%';
+        magnifierCanvasContainer.style.position = 'relative';
+        magnifierCanvasContainer.appendChild(this.magnifierRenderer.domElement);
+        
+        this.magnifier.appendChild(magnifierCanvasContainer);
+
+        this.magnifierCamera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
+
+        this.magnifierScene = new THREE.Scene();
+        this.magnifierScene.background = new THREE.Color(0x0a0e17);
+
+        const magnifierMainLight = new THREE.DirectionalLight(0xffffff, 1.5);
+        magnifierMainLight.position.set(3, 5, 4);
+        this.magnifierScene.add(magnifierMainLight);
+
+        const magnifierFillLight = new THREE.DirectionalLight(0x6366f1, 0.4);
+        magnifierFillLight.position.set(-2, 2, -2);
+        this.magnifierScene.add(magnifierFillLight);
+
+        const magnifierAmbient = new THREE.AmbientLight(0x4a5568, 0.5);
+        this.magnifierScene.add(magnifierAmbient);
+
+        this.container.appendChild(this.magnifier);
+    }
+
+    updateMagnifier() {
+        if (!this.isAnimating || !this.sceneObjects.specimen) {
+            if (this.magnifier && this.magnifier.style.display === 'block') {
+                return;
+            }
+            return;
+        }
+
+        this.magnifier.style.display = 'block';
+
+        const specimenPos = new THREE.Vector3();
+        this.sceneObjects.specimen.getWorldPosition(specimenPos);
+
+        this.magnifierCamera.position.copy(specimenPos);
+        this.magnifierCamera.position.z += 2;
+        this.magnifierCamera.lookAt(specimenPos);
+
+        const magnifiedSpecimen = this.magnifierScene.children.find(c => c.name === 'specimen-magnified');
+        if (!magnifiedSpecimen) {
+            const specimenCopy = this.sceneObjects.specimen.clone();
+            specimenCopy.name = 'specimen-magnified';
+            this.magnifierScene.add(specimenCopy);
+        } else {
+            magnifiedSpecimen.position.copy(this.sceneObjects.specimen.position);
+            magnifiedSpecimen.rotation.copy(this.sceneObjects.specimen.rotation);
+            magnifiedSpecimen.scale.copy(this.sceneObjects.specimen.scale);
+            magnifiedSpecimen.material = this.sceneObjects.specimen.material.clone();
+        }
+
+        const magnifiedImpactor = this.magnifierScene.children.find(c => c.name === 'impactor-magnified');
+        if (this.sceneObjects.impactor && !magnifiedImpactor) {
+            const impactorCopy = this.sceneObjects.impactor.clone();
+            impactorCopy.name = 'impactor-magnified';
+            this.magnifierScene.add(impactorCopy);
+        } else if (this.sceneObjects.impactor && magnifiedImpactor) {
+            magnifiedImpactor.position.copy(this.sceneObjects.impactor.position);
+            magnifiedImpactor.rotation.copy(this.sceneObjects.impactor.rotation);
+            magnifiedImpactor.scale.copy(this.sceneObjects.impactor.scale);
+        }
+
+        this.magnifierRenderer.render(this.magnifierScene, this.magnifierCamera);
     }
 
     updateParams(newParams) {
@@ -1603,16 +1793,9 @@ class Twin3D {
             this.sceneObjects.pressureNeedle.rotation.z = -Math.PI / 4 + pressureRatio * Math.PI / 2;
         }
 
-        if (this.sceneObjects.impactor) {
-            const strainRateEffect = 1 + this.params.strainRate / 5000;
-            this.sceneObjects.impactor.position.x = -5.2 + Math.sin(Date.now() * 0.001 * strainRateEffect * 0.5) * 0.5;
-        }
-
         if (this.sceneObjects.strainParticles) {
             this.sceneObjects.strainParticles.visible = this.params.strainRate > 500;
         }
-
-        this.isAnimating = true;
     }
 
     runSimulation() {
@@ -1624,8 +1807,20 @@ class Twin3D {
                 return;
             }
         }
+
+        this.resetView();
+
         this.isAnimating = true;
         this.animationProgress = 0;
+
+        if (this.sceneObjects.pressureNeedle) {
+            const pressureRatio = Math.min(this.params.pressure / 200, 1);
+            this.sceneObjects.pressureNeedle.rotation.z = -Math.PI / 4 + pressureRatio * Math.PI / 2;
+        }
+
+        if (this.sceneObjects.strainParticles) {
+            this.sceneObjects.strainParticles.visible = this.params.strainRate > 500;
+        }
     }
 
     onWindowResize() {
@@ -1664,13 +1859,57 @@ class Twin3D {
 
         this.checkAndFixCanvasSize();
 
-        if (this.updateRotation) {
-            this.updateRotation();
+        if (this.controls) {
+            this.controls.update();
         }
 
         if (this.isAnimating) {
-            this.animationProgress += 0.005;
-            
+            this.animationProgress += 0.008;
+
+            const impactDuration = 0.4;
+            const collisionPoint = this.animationProgress * impactDuration;
+
+            if (this.sceneObjects.impactorGroup) {
+                const startPos = this.initialPositions.impactor.x;
+                const targetPos = -4.8;
+                
+                if (collisionPoint < 1) {
+                    const t = collisionPoint;
+                    const eased = t * t * (3 - 2 * t);
+                    const newX = startPos + (targetPos - startPos) * eased;
+                    this.sceneObjects.impactorGroup.position.x = newX;
+                } else if (collisionPoint < 1.5) {
+                    const bounceBack = (collisionPoint - 1) * 0.5;
+                    this.sceneObjects.impactorGroup.position.x = targetPos + bounceBack * 2;
+                } else if (collisionPoint < 2) {
+                    const recover = (collisionPoint - 1.5) / 0.5;
+                    const eased = recover * recover * (3 - 2 * recover);
+                    const currentX = this.sceneObjects.impactorGroup.position.x;
+                    const newX = currentX + (startPos - currentX) * eased * 0.3;
+                    this.sceneObjects.impactorGroup.position.x = newX;
+                }
+            }
+
+            if (this.sceneObjects.specimen) {
+                const initialScale = 1 - this.params.porosity * 0.3;
+                const strainEffect = Math.max(0, (this.params.strainRate - 500) / 2000);
+                
+                if (collisionPoint >= 0.8 && collisionPoint < 1.2) {
+                    const compression = (collisionPoint - 0.8) / 0.4;
+                    const eased = 1 - Math.pow(1 - compression, 3);
+                    const compressScale = initialScale * (1 - eased * 0.3 * (0.5 + strainEffect));
+                    this.sceneObjects.specimen.scale.set(compressScale * 1.2, compressScale, compressScale * 1.2);
+                } else if (collisionPoint >= 1.2) {
+                    const recovery = (collisionPoint - 1.2) / 0.8;
+                    const eased = 1 - Math.pow(1 - recovery, 3);
+                    const currentScale = this.sceneObjects.specimen.scale.y;
+                    const newScale = currentScale + (initialScale - currentScale) * eased;
+                    this.sceneObjects.specimen.scale.set(newScale * 1.1, newScale, newScale * 1.1);
+                }
+            }
+
+            this.updateWaveEffect(collisionPoint);
+
             if (this.sceneObjects.strainParticles && this.params.strainRate > 500) {
                 const positions = this.sceneObjects.strainParticles.geometry.attributes.position.array;
                 const velocities = this.sceneObjects.strainVelocities;
@@ -1690,14 +1929,46 @@ class Twin3D {
                 this.sceneObjects.strainParticles.geometry.attributes.position.needsUpdate = true;
             }
 
-            if (this.animationProgress > 2) {
+            if (this.animationProgress > 2.5) {
                 this.isAnimating = false;
+                if (this.sceneObjects.specimen) {
+                    const initialScale = 1 - this.params.porosity * 0.3;
+                    this.sceneObjects.specimen.scale.set(initialScale, initialScale, initialScale);
+                }
             }
         }
+
+        this.updateMagnifier();
 
         if (this.renderer && this.scene && this.camera) {
             this.renderer.render(this.scene, this.camera);
         }
+    }
+
+    updateWaveEffect(progress) {
+        const waveSpeed = 8;
+        const waveInterval = 0.05;
+        
+        this.waveParticles.forEach((wave, index) => {
+            const waveStartTime = 0.8 + index * waveInterval;
+            
+            if (progress >= waveStartTime && progress < waveStartTime + 1.5) {
+                wave.active = true;
+                wave.mesh.visible = true;
+                
+                const elapsed = progress - waveStartTime;
+                wave.position = -4.5 + elapsed * waveSpeed;
+                wave.radius = 0.15 + elapsed * 0.3;
+                wave.opacity = Math.max(0, 0.7 - elapsed * 0.5);
+                
+                wave.mesh.position.x = wave.position;
+                wave.mesh.scale.set(wave.radius / 0.15, wave.radius / 0.15, 1);
+                wave.mesh.material.opacity = wave.opacity;
+            } else {
+                wave.active = false;
+                wave.mesh.visible = false;
+            }
+        });
     }
 
     destroy() {
@@ -1706,6 +1977,21 @@ class Twin3D {
         }
         
         window.removeEventListener('resize', () => this.onWindowResize());
+        
+        if (this.controls) {
+            this.controls.dispose();
+            this.controls = null;
+        }
+        
+        if (this.magnifierRenderer) {
+            this.magnifierRenderer.dispose();
+            this.magnifierRenderer = null;
+        }
+        
+        if (this.magnifier && this.container) {
+            this.container.removeChild(this.magnifier);
+            this.magnifier = null;
+        }
         
         if (this.renderer) {
             this.renderer.dispose();
@@ -1751,22 +2037,38 @@ class Twin3D {
 }
 
 function loadThreeJS(callback) {
-    if (typeof THREE !== 'undefined') {
-        console.log('[Twin3D] THREE.js already loaded');
+    if (typeof THREE !== 'undefined' && typeof THREE.OrbitControls !== 'undefined') {
+        console.log('[Twin3D] THREE.js and OrbitControls already loaded');
         callback();
         return;
     }
     
-    console.log('[Twin3D] Loading THREE.js from CDN');
-    const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js';
-    script.onload = () => {
-        console.log('[Twin3D] THREE.js loaded successfully');
-        callback();
+    console.log('[Twin3D] Loading THREE.js and OrbitControls from CDN');
+    
+    let loadedCount = 0;
+    const checkLoaded = () => {
+        loadedCount++;
+        if (loadedCount >= 2) {
+            console.log('[Twin3D] THREE.js and OrbitControls loaded successfully');
+            callback();
+        }
     };
-    script.onerror = () => {
+    
+    const threeScript = document.createElement('script');
+    threeScript.src = 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js';
+    threeScript.onload = checkLoaded;
+    threeScript.onerror = () => {
         console.error('[Twin3D] THREE.js loading failed');
-        callback();
+        checkLoaded();
     };
-    document.head.appendChild(script);
+    document.head.appendChild(threeScript);
+    
+    const controlsScript = document.createElement('script');
+    controlsScript.src = 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/controls/OrbitControls.js';
+    controlsScript.onload = checkLoaded;
+    controlsScript.onerror = () => {
+        console.error('[Twin3D] OrbitControls loading failed');
+        checkLoaded();
+    };
+    document.head.appendChild(controlsScript);
 }
