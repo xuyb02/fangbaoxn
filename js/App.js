@@ -23,14 +23,18 @@ class App {
     init() {
         this.setupEventListeners();
         this.initSliderControls();
-        this.initTwin3D();
     }
 
     initTwin3D() {
         loadThreeJS(() => {
             if (typeof THREE !== 'undefined') {
                 this.threeLoaded = true;
-                this.twin3D = new Twin3D('twin-3d-container');
+                if (!this.twin3D) {
+                    this.twin3D = new Twin3D('twin-3d-container');
+                }
+                setTimeout(() => {
+                    this.twin3D.init();
+                }, 150);
             }
         });
     }
@@ -91,7 +95,21 @@ class App {
         }
         
         if (targetTab === 'simulation') {
-            setTimeout(() => this.initTwin3D(), 100);
+            setTimeout(() => {
+                if (this.twin3D && this.twin3D.isInitialized) {
+                    return;
+                }
+                const container = document.getElementById('twin-3d-container');
+                if (container && container.clientWidth > 0 && container.clientHeight > 0) {
+                    if (this.twin3D) {
+                        this.twin3D.init();
+                    } else {
+                        this.initTwin3D();
+                    }
+                } else {
+                    setTimeout(() => this.switchTab({ currentTarget: btn }), 100);
+                }
+            }, 150);
         }
     }
 
@@ -656,5 +674,5 @@ class App {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    new App();
+    window.app = new App();
 });

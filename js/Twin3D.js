@@ -21,46 +21,191 @@ class Twin3D {
         this.isAnimating = false;
         this.animationProgress = 0;
         this.isInitialized = false;
+        
+        this.debugInfo = {
+            initAttempts: 0,
+            lastError: null,
+            containerReady: false,
+            threeLoaded: typeof THREE !== 'undefined',
+            containerWidth: 0,
+            containerHeight: 0,
+            initializationTime: null,
+            lastRetryTime: null
+        };
+        
+        this.retryTimer = null;
+        this.maxRetryAttempts = 10;
+        this.retryDelay = 200;
     }
 
     init() {
+        if (this.isInitialized) {
+            console.log('[Twin3D] Already initialized, skipping');
+            return;
+        }
+        
+        if (this.retryTimer) {
+            clearTimeout(this.retryTimer);
+            this.retryTimer = null;
+        }
+        
+        this.debugInfo.initAttempts++;
+        this.debugInfo.lastRetryTime = new Date().toISOString();
+        
+        try {
+            this.container = document.getElementById(this.containerId);
+            if (!this.container) {
+                this.debugInfo.lastError = 'Container not found: ' + this.containerId;
+                console.error('[Twin3D] Container not found:', this.containerId);
+                this.scheduleRetry();
+                return;
+            }
+            
+            const computedStyle = window.getComputedStyle(this.container);
+            const width = this.container.clientWidth || parseInt(computedStyle.width) || 0;
+            const height = this.container.clientHeight || parseInt(computedStyle.height) || 0;
+            
+            this.debugInfo.containerWidth = width;
+            this.debugInfo.containerHeight = height;
+            
+            if (width === 0 || height === 0) {
+                this.debugInfo.lastError = 'Container size is zero: ' + width + 'x' + height;
+                console.warn('[Twin3D] Container size is zero (attempt ' + this.debugInfo.initAttempts + '), scheduling retry...');
+                this.scheduleRetry();
+                return;
+            }
+            
+            this.debugInfo.containerReady = true;
+            
+            if (typeof THREE === 'undefined') {
+                this.debugInfo.lastError = 'THREE is not defined';
+                console.error('[Twin3D] THREE.js is not loaded');
+                this.scheduleRetry();
+                return;
+            }
+            
+            this.debugInfo.threeLoaded = true;
+            
+            this.scene = new THREE.Scene();
+            this.scene.background = new THREE.Color(0x0a0e17);
+            this.scene.fog = new THREE.Fog(0x0a0e17, 15, 50);
+
+            this.camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+            this.camera.position.set(8, 5, 8);
+            this.camera.lookAt(0, 0, 0);
+
+            this.debugInfo.webglSupport = this.checkWebGLSupport();
+            console.log('[Twin3D] WebGL Support:', this.debugInfo.webglSupport);
+            
+            if (!this.debugInfo.webglSupport.supported) {
+                this.debugInfo.lastError = 'WebGL not supported: ' + this.debugInfo.webglSupport.message;
+                console.error('[Twin3D] WebGL not supported:', this.debugInfo.webglSupport);
+                return;
+            }
+
+            try {
+                this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+                console.log('[Twin3D] Renderer created successfully');
+            } catch (rendererError) {
+                this.debugInfo.lastError = 'Renderer creation failed: ' + rendererError.message;
+                console.error('[Twin3D] Failed to create WebGLRenderer:', rendererError);
+                this.scheduleRetry();
+                return;
+            }
+            this.renderer.setSize(width, height);
+            this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            this.renderer.shadowMap.enabled = true;
+            this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            
+            let canvasContainer = this.container.querySelector('.twin-3d-canvas');
+            if (!canvasContainer) {
+                canvasContainer = document.createElement('div');
+                canvasContainer.className = 'twin-3d-canvas';
+                canvasContainer.style.width = '100%';
+                canvasContainer.style.height = '100%';
+                canvasContainer.style.position = 'absolute';
+                canvasContainer.style.top = '0';
+                canvasContainer.style.left = '0';
+                this.container.insertBefore(canvasContainer, this.container.firstChild);
+            }
+            const existingCanvas = canvasContainer.querySelector('canvas');
+            if (existingCanvas) {
+                canvasContainer.removeChild(existingCanvas);
+            }
+            canvasContainer.appendChild(this.renderer.domElement);
+
+            this.setupLighting();
+            this.createSceneObjects();
+            this.addGround();
+
+            window.addEventListener('resize', () => this.onWindowResize());
+            
+            this.addInteraction();
+
+            this.isInitialized = true;
+            this.debugInfo.initializationTime = new Date().toISOString();
+            console.log('[Twin3D] Initialization complete after ' + this.debugInfo.initAttempts + ' attempts');
+            this.animate();
+            
+        } catch (error) {
+            this.debugInfo.lastError = error.message;
+            console.error('[Twin3D] Initialization failed:', error);
+            this.scheduleRetry();
+        }
+    }
+
+    scheduleRetry() {
         if (this.isInitialized) return;
+        if (this.debugInfo.initAttempts >= this.maxRetryAttempts) {
+            console.error('[Twin3D] Max retry attempts reached (' + this.maxRetryAttempts + '), giving up');
+            return;
+        }
         
-        this.container = document.getElementById(this.containerId);
-        if (!this.container) return;
+        if (this.retryTimer) {
+            clearTimeout(this.retryTimer);
+        }
         
-        const width = this.container.clientWidth;
-        const height = this.container.clientHeight;
+        const delay = this.retryDelay * Math.pow(1.5, this.debugInfo.initAttempts - 1);
+        console.log('[Twin3D] Scheduling retry in ' + delay + 'ms (attempt ' + this.debugInfo.initAttempts + '/' + this.maxRetryAttempts + ')');
         
-        if (width === 0 || height === 0) return;
+        this.retryTimer = setTimeout(() => {
+            this.init();
+        }, delay);
+    }
 
-        this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color(0x0a0e17);
-        this.scene.fog = new THREE.Fog(0x0a0e17, 15, 50);
-
-        this.camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-        this.camera.position.set(8, 5, 8);
-        this.camera.lookAt(0, 0, 0);
-
-        this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        this.renderer.setSize(width, height);
-        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        this.renderer.shadowMap.enabled = true;
-        this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    checkWebGLSupport() {
+        const canvas = document.createElement('canvas');
+        const gl = canvas.getContext('webgl', { preserveDrawingBuffer: false });
+        const gl2 = canvas.getContext('webgl2', { preserveDrawingBuffer: false });
         
-        this.container.innerHTML = '';
-        this.container.appendChild(this.renderer.domElement);
-
-        this.setupLighting();
-        this.createSceneObjects();
-        this.addGround();
-
-        window.addEventListener('resize', () => this.onWindowResize());
+        let supported = false;
+        let message = '';
+        let version = '';
         
-        this.addInteraction();
-
-        this.isInitialized = true;
-        this.animate();
+        if (gl2) {
+            supported = true;
+            version = 'WebGL 2.0';
+            message = 'WebGL 2.0 is supported';
+        } else if (gl) {
+            supported = true;
+            version = 'WebGL 1.0';
+            message = 'WebGL 1.0 is supported';
+        } else {
+            supported = false;
+            version = 'None';
+            message = 'WebGL is not supported in this browser';
+        }
+        
+        if (gl) gl.getExtension('WEBGL_lose_context')?.loseContext();
+        if (gl2) gl2.getExtension('WEBGL_lose_context')?.loseContext();
+        
+        return {
+            supported: supported,
+            version: version,
+            message: message,
+            webgl1: !!gl,
+            webgl2: !!gl2
+        };
     }
 
     setupLighting() {
@@ -323,12 +468,14 @@ class Twin3D {
         let targetRotationX = 0;
         let targetRotationY = 0;
 
-        this.container.addEventListener('mousedown', (e) => {
+        const container = this.container;
+
+        container.addEventListener('mousedown', (e) => {
             isDragging = true;
             previousMousePosition = { x: e.clientX, y: e.clientY };
         });
 
-        this.container.addEventListener('mousemove', (e) => {
+        container.addEventListener('mousemove', (e) => {
             if (!isDragging) return;
             
             const deltaX = e.clientX - previousMousePosition.x;
@@ -341,16 +488,16 @@ class Twin3D {
             previousMousePosition = { x: e.clientX, y: e.clientY };
         });
 
-        this.container.addEventListener('mouseup', () => {
+        container.addEventListener('mouseup', () => {
             isDragging = false;
         });
 
-        this.container.addEventListener('mouseleave', () => {
+        container.addEventListener('mouseleave', () => {
             isDragging = false;
         });
 
         let scale = 1;
-        this.container.addEventListener('wheel', (e) => {
+        container.addEventListener('wheel', (e) => {
             e.preventDefault();
             scale += e.deltaY * -0.001;
             scale = Math.max(0.5, Math.min(2, scale));
@@ -366,7 +513,10 @@ class Twin3D {
     }
 
     updateParams(newParams) {
-        if (!this.isInitialized) return;
+        if (!this.isInitialized) {
+            console.warn('[Twin3D] Cannot update params - not initialized');
+            return;
+        }
         
         this.params = { ...this.params, ...newParams };
         
@@ -399,8 +549,12 @@ class Twin3D {
 
     runSimulation() {
         if (!this.isInitialized) {
+            console.log('[Twin3D] Running init before simulation');
             this.init();
-            if (!this.isInitialized) return;
+            if (!this.isInitialized) {
+                console.error('[Twin3D] Failed to initialize for simulation');
+                return;
+            }
         }
         this.isAnimating = true;
         this.animationProgress = 0;
@@ -416,8 +570,31 @@ class Twin3D {
         this.renderer.setSize(width, height);
     }
 
+    checkAndFixCanvasSize() {
+        if (!this.isInitialized || !this.container || !this.renderer) return;
+        
+        const containerWidth = this.container.clientWidth;
+        const containerHeight = this.container.clientHeight;
+        const canvasWidth = this.renderer.domElement.width;
+        const canvasHeight = this.renderer.domElement.height;
+        
+        if (Math.abs(containerWidth - canvasWidth) > 10 || Math.abs(containerHeight - canvasHeight) > 10) {
+            console.log('[Twin3D] Canvas size mismatch detected:', canvasWidth + 'x' + canvasHeight, '->', containerWidth + 'x' + containerHeight);
+            this.camera.aspect = containerWidth / containerHeight;
+            this.camera.updateProjectionMatrix();
+            this.renderer.setSize(containerWidth, containerHeight);
+        }
+    }
+
     animate() {
+        if (!this.isInitialized) {
+            this.animationId = requestAnimationFrame(() => this.animate());
+            return;
+        }
+
         this.animationId = requestAnimationFrame(() => this.animate());
+
+        this.checkAndFixCanvasSize();
 
         if (this.updateRotation) {
             this.updateRotation();
@@ -472,14 +649,55 @@ class Twin3D {
         
         this.isInitialized = false;
     }
+
+    getDebugInfo() {
+        return { ...this.debugInfo };
+    }
+
+    checkStatus() {
+        const status = {
+            isInitialized: this.isInitialized,
+            containerExists: !!this.container,
+            containerWidth: this.container ? this.container.clientWidth : 0,
+            containerHeight: this.container ? this.container.clientHeight : 0,
+            threeLoaded: typeof THREE !== 'undefined',
+            sceneExists: !!this.scene,
+            cameraExists: !!this.camera,
+            rendererExists: !!this.renderer,
+            meshGroupExists: !!this.meshGroup,
+            animationId: this.animationId,
+            isAnimating: this.isAnimating,
+            debugInfo: this.debugInfo
+        };
+        
+        console.log('[Twin3D] Status Check:', status);
+        return status;
+    }
+
+    forceInit() {
+        if (this.isInitialized) {
+            this.destroy();
+        }
+        this.init();
+    }
 }
 
 function loadThreeJS(callback) {
+    if (typeof THREE !== 'undefined') {
+        console.log('[Twin3D] THREE.js already loaded');
+        callback();
+        return;
+    }
+    
+    console.log('[Twin3D] Loading THREE.js from CDN');
     const script = document.createElement('script');
     script.src = 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js';
-    script.onload = callback;
+    script.onload = () => {
+        console.log('[Twin3D] THREE.js loaded successfully');
+        callback();
+    };
     script.onerror = () => {
-        console.error('Three.js loading failed');
+        console.error('[Twin3D] THREE.js loading failed');
         callback();
     };
     document.head.appendChild(script);
